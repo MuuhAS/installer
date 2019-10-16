@@ -90,6 +90,8 @@ class NewCommand extends Command
             $output->write($line);
         });
 
+        $this->writeProcfile($directory);
+
         $output->writeln('<comment>Application ready! Build something amazing.</comment>');
     }
 
@@ -226,5 +228,22 @@ class NewCommand extends Command
         }
 
         return 'composer';
+    }
+
+    /**
+     * Writes a default Heroku Procfile using a public php-apache dyno.
+     * 
+     * @return void
+     */
+    protected function writeProcfile($path)
+    {
+        $contents = "web: vendor/bin/heroku-php-apache2 public/\n"
+                    ."worker: php artisan queue:work --tries=3";
+        
+        $file = fopen($path."/Procfile", "w");
+        if ($file) {
+            fwrite($file, $contents);
+            fclose($file);
+        }
     }
 }
